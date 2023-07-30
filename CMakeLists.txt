@@ -11,7 +11,7 @@ add_definitions(-DUSE_SDL)
 include_directories(src)
 include_directories(lvgl)
 
-# 添加子库编译
+# 添加cmake子库编译
 add_subdirectory("lvgl")
 add_subdirectory("lvgl_drivers")
 
