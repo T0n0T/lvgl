@@ -7,5 +7,5 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
     },
-    "C_Cpp.default.configurationProvider": "cl.eide"
+    "C_Cpp.default.configurationProvider": "cl.eide",
 }
