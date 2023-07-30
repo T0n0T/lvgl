@@ -8,4 +8,7 @@
         "**/Thumbs.db": true,
     },
     "C_Cpp.default.configurationProvider": "cl.eide",
+    "C_Cpp.default.defines": [
+        "USE_SDL",
+    ]
 }

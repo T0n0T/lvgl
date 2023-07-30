@@ -9,10 +9,11 @@ add_definitions(-DUSE_SDL)
 
 # 添加头文件目录
 include_directories(src)
+include_directories(lvgl)
 
 # 添加子库编译
 add_subdirectory("lvgl")
-add_subdirectory("lv_drivers")
+add_subdirectory("lvgl_drivers")
 
 # 添加源文件(递归包含)
 FILE(GLOB_RECURSE src_source ./src/*.c)
@@ -22,7 +23,8 @@ add_executable(${PROJECT_NAME} ${src_source})
 
 # 链接库
 target_link_libraries(${PROJECT_NAME} lvgl)
-target_link_libraries(${PROJECT_NAME} lv_drivers)
+target_link_libraries(${PROJECT_NAME} lvgl_demos)
+target_link_libraries(${PROJECT_NAME} lvgl_drivers)
 target_link_libraries(${PROJECT_NAME} mingw32)
 target_link_libraries(${PROJECT_NAME} SDL2main)
 target_link_libraries(${PROJECT_NAME} SDL2)

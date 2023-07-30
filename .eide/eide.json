@@ -94,7 +94,7 @@
           "STM32F10X_HD",
           "USE_STDPERIPH_DRIVER",
           "LV_CONF_INCLUDE_SIMPLE",
-          "MCU_ENV",
+          "USE_SDL",
           "NDEBUG"
         ]
       }
