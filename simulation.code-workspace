@@ -5,6 +5,7 @@
         }
     ],
     "settings": {
+        "C_Cpp.intelliSenseEngine": "disabled",
         "files.autoGuessEncoding": true,
         "files.associations": {
             ".eideignore": "ignore",
