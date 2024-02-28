@@ -31,9 +31,6 @@ target_link_libraries(${PROJECT_NAME} SDL2main)
 target_link_libraries(${PROJECT_NAME} SDL2)
 target_link_libraries(${PROJECT_NAME} avfilter avformat avcodec avutil swresample swscale)
 
-# 拷贝SDL2.dll 文件到 build目录
-file(COPY SDL2.dll DESTINATION ../build)
-
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
