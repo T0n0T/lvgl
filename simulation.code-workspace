@@ -32,7 +32,6 @@
             // 同时开启的任务数量
             "-j=12",
             // 告诉clangd用那个clang进行编译，路径参考which clang++的路径
-            "--query-driver=D:\\mingw\\llvm-mingw-20230614-ucrt-x86_64\\bin\\clang++.exe",
             // clang-tidy功能
             "--clang-tidy",
             "--clang-tidy-checks=performance-*,bugprone-*",

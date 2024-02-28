@@ -11,3 +11,5 @@
 # eide template
 *.ept
 *.eide-template
+
+.cache
