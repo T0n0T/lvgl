@@ -7,7 +7,7 @@ CompileFlags:
       -Wno-missing-prototypes,
     ]
   Remove: -W*
-  Compiler: clang 
+  Compiler: gcc 
 Diagnostics:
   UnusedIncludes: None 
   ClangTidy:
