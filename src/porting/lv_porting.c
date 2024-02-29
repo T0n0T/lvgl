@@ -6,7 +6,7 @@
 #define MONITOR_VER_RES  272
 #define MONITOR_BUF_SIZE MONITOR_HOR_RES * 10
 
-#define USE_WINDOWS
+#define USE_SDL
 
 #if LV_USE_SDL
 #ifdef USE_SDL

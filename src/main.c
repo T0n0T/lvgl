@@ -1,10 +1,9 @@
+#include "mydemo/mydemo.h"
 #include "porting/lv_porting.h"
 #include "lvgl.h"
 #include "demos/lv_demos.h"
 #include "examples/lv_examples.h"
-#include <libs/ffmpeg/lv_example_ffmpeg.h>
 #include <stdio.h>
-#include <widgets/lv_example_widgets.h>
 
 int main(int argc, char const *argv[])
 {
@@ -12,7 +11,7 @@ int main(int argc, char const *argv[])
     printf("LVGL porting init\n");
 
     // lv_demo_widgets();
-    lv_example_ffmpeg_2();
+    my_demo_create(lv_scr_act());
 
     while (1) {
         uint32_t time_till_next = lv_timer_handler();
