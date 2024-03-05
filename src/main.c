@@ -11,6 +11,7 @@ int main(int argc, char const *argv[])
     printf("LVGL porting init\n");
 
     // lv_demo_widgets();
+    // lv_demo_music();
     my_demo_create(lv_scr_act());
 
     while (1) {

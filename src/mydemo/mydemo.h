@@ -11,6 +11,7 @@
 #ifndef __MYDEMO_H__
 #define __MYDEMO_H__
 #include "lvgl.h"
+#include "stdio.h"
 
 void my_demo_create(lv_obj_t *parent);
 

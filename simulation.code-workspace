@@ -33,10 +33,7 @@
             "-j=12",
             // 告诉clangd用那个clang进行编译，路径参考which clang++的路径
             "--query-driver=C:/msys64/ucrt64/bin/gcc.exe",
-            // 全局补全（会自动补充头文件）
-            "--all-scopes-completion",
-            // 更详细的补全内容
-            "--completion-style=detailed",
+            "--header-insertion=never",
             // clang-tidy功能
             "--clang-tidy",
             "--clang-tidy-checks=performance-*,bugprone-*",
