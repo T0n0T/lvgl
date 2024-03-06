@@ -1,9 +1,6 @@
 #include "lv_porting.h"
 #include "lvgl.h"
 
-#define MONITOR_HOR_RES  480
-#define MONITOR_VER_RES  272
-#define MONITOR_BUF_SIZE MONITOR_HOR_RES * 10
 
 #ifdef MCU_ENV
 
@@ -118,6 +115,7 @@ void lv_porting_init(void)
     // 初始化图像缓冲区, 第二个缓冲区(可选)可以传入NULL
     static lv_disp_draw_buf_t disp_buf;
     static lv_color_t buf_1[MONITOR_BUF_SIZE];
+
     lv_disp_draw_buf_init(&disp_buf, buf_1, NULL, MONITOR_BUF_SIZE);
 
     /* 注册显示驱动 */
