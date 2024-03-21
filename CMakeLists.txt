@@ -5,7 +5,7 @@ include(CTest)
 enable_testing()
 
 # 添加宏定义
-add_definitions(-DUSE_SDL)
+add_definitions(-DUSE_SDL -DUSE_WIN32DRV)
 
 # 添加头文件目录
 include_directories(src)

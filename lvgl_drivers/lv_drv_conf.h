@@ -14,7 +14,6 @@
 #define LV_DRV_CONF_H
 
 #include "lv_conf.h"
-#include "../src/porting/lv_porting.h"
 
 /*********************
  * DELAY INTERFACE
@@ -96,8 +95,8 @@
 #endif
 
 #if USE_SDL || USE_SDL_GPU
-#  define SDL_HOR_RES     MONITOR_HOR_RES
-#  define SDL_VER_RES     MONITOR_VER_RES
+#  define SDL_HOR_RES     320
+#  define SDL_VER_RES     480
 
 /* Scale window by this factor (useful when simulating small screens) */
 #  define SDL_ZOOM        1
