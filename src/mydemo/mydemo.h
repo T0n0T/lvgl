@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 void my_demo_create(lv_obj_t * parent);
+void my_serial_demo(lv_obj_t * parent);
 
 #endif // !__MYDEMO_H__
 

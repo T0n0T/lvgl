@@ -105,6 +105,8 @@ static int tick_thread(void *data)
     return 0;
 }
 
+lv_indev_t *keyboard_indev;
+
 void lv_porting_init(void)
 {
     lv_init();
@@ -134,6 +136,13 @@ void lv_porting_init(void)
     indev_drv_1.type        = LV_INDEV_TYPE_POINTER;
     indev_drv_1.read_cb     = sdl_mouse_read;
     lv_indev_t *mouse_indev = lv_indev_drv_register(&indev_drv_1);
+
+    /* 注册键盘驱动 */
+    static lv_indev_drv_t indev_drv_2;
+    lv_indev_drv_init(&indev_drv_2);
+    indev_drv_2.type        = LV_INDEV_TYPE_KEYPAD;
+    indev_drv_2.read_cb     = sdl_keyboard_read;
+    keyboard_indev = lv_indev_drv_register(&indev_drv_2);
 }
 
 void inline lv_porting_delay(void)
