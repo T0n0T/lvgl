@@ -44,7 +44,14 @@ void input_callback(lv_event_t *e)
 {
     lv_obj_t *t = lv_event_get_target(e);
     if (e->code == LV_EVENT_INSERT) {
-        printf("%s\n", (char*)lv_event_get_param(e));
+        printf("%s\n", (char *)lv_event_get_param(e));
+        
+        // lv_textarea_del_char(t);
+    }
+    if (e->code == LV_EVENT_VALUE_CHANGED)
+    {
+        printf("LV_EVENT_VALUE_CHANGED\n");
+        lv_textarea_del_char(t);
     }
 }
 
@@ -63,6 +70,7 @@ void my_serial_demo(lv_obj_t *parent)
 
     /* Create an LVGL Text Area Widget for Terminal */
     lv_obj_t *g_input = lv_textarea_create(g_col);
+    // lv_obj_t *g_input = lv_label_create(g_col);
     lv_obj_add_style(g_input, &g_terminal_style, 0);
     lv_obj_set_size(g_input, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_grow(g_input, 1);
