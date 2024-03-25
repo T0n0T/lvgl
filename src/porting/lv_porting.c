@@ -1,5 +1,7 @@
 #include "lv_porting.h"
 #include "lvgl.h"
+#include <src/core/lv_group.h>
+#include <src/core/lv_indev.h>
 
 
 #ifdef MCU_ENV

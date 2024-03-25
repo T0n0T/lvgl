@@ -41,7 +41,7 @@
             // 更详细的补全内容
             "--completion-style=detailed",
             // 补充头文件的形式
-            "--header-insertion=iwyu",
+            "--header-insertion=never",
             // pch优化的位置
             "--pch-storage=disk",
         ],
