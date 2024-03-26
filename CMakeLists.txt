@@ -23,8 +23,8 @@ add_executable(${PROJECT_NAME} ${src_source})
 
 # 链接库
 target_link_libraries(${PROJECT_NAME} lvgl)
-target_link_libraries(${PROJECT_NAME} lvgl_demos)
-target_link_libraries(${PROJECT_NAME} lvgl_examples)
+# target_link_libraries(${PROJECT_NAME} lvgl_demos)
+# target_link_libraries(${PROJECT_NAME} lvgl_examples)
 target_link_libraries(${PROJECT_NAME} lvgl_drivers)
 target_link_libraries(${PROJECT_NAME} mingw32)
 target_link_libraries(${PROJECT_NAME} SDL2main)

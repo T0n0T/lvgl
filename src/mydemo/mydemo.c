@@ -44,14 +44,16 @@ void input_callback(lv_event_t *e)
 {
     lv_obj_t *t = lv_event_get_target(e);
     if (e->code == LV_EVENT_INSERT) {
-        printf("%s\n", (char *)lv_event_get_param(e));
-        
-        // lv_textarea_del_char(t);
+        printf("LV_EVENT_INSERT %s\n", (char *)lv_event_get_param(e));
     }
-    if (e->code == LV_EVENT_VALUE_CHANGED)
+    if (e->code == LV_EVENT_KEY) {
+        printf("LV_EVENT_KEY %s\n", (char *)lv_event_get_param(e));
+        lv_textarea_add_char(t, 'A');
+        e->stop_processing = true;
+    }
+    if (e->code == LV_EVENT_LONG_PRESSED)
     {
-        printf("LV_EVENT_VALUE_CHANGED\n");
-        lv_textarea_del_char(t);
+        printf("LV_EVENT_LONG_PRESSED\n");
     }
 }
 
@@ -76,7 +78,7 @@ void my_serial_demo(lv_obj_t *parent)
     lv_obj_set_flex_grow(g_input, 1);
 
     /* Register the Callback Function for Input */
-    lv_obj_add_event_cb(g_input, input_callback, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(g_input, input_callback, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
 
     lv_group_add_obj(g, g_input);
     lv_indev_set_group(keyboard_indev, g);
