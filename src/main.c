@@ -14,6 +14,7 @@ int main(int argc, char const *argv[])
     // ui_init();
     // my_demo_create(lv_scr_act());
     my_serial_demo(lv_scr_act());
+    // my_animate_demo(NULL, NULL);
     // lv_example_ffmpeg_1();
     // lv_example_arc_1();
     while (1) {

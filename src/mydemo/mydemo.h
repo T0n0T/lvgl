@@ -16,6 +16,7 @@
 
 void my_demo_create(lv_obj_t * parent);
 void my_serial_demo(lv_obj_t * parent);
+void my_animate_demo(lv_point_t *p, lv_anim_ready_cb_t ready_cb);
 
 #endif // !__MYDEMO_H__
 
