@@ -8,6 +8,6 @@
 
 void lv_porting_init(void);
 
-void lv_porting_delay(void);
+void lv_porting_looper(void);
 
 #endif

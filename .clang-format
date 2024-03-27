@@ -36,3 +36,5 @@ SortIncludes: false
 AlignConsecutiveMacros: AcrossEmptyLines
 
 AlignConsecutiveAssignments: Consecutive
+
+AlignConsecutiveDeclarations: Consecutive

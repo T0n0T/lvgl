@@ -10,23 +10,33 @@
  */
 #include "mydemo.h"
 
-extern lv_indev_t *keyboard_indev;
-static lv_anim_t a;
-void my_serial_demo(lv_obj_t *parent);
+/**
+ * @brief static variable
+ *
+ */
+static uint8_t     g_anim_ready_flag;
+static lv_anim_t   g_anim_arc;
+static lv_style_t  g_terminal_style;
+static lv_group_t *g_terminal_group;
+static lv_obj_t   *g_terminal_obj;
+static lv_obj_t   *g_menu_obj;
 
-void bar_cb(lv_event_t *e)
-{
-    printf("event: %d\n", e->code);
-}
+static void anmi_arc_set_angle(void *obj, int32_t v);
+static void anmi_arc_ready_cb(struct _lv_anim_t *anim);
+static void terminal_ev_cb(lv_event_t *e);
+static void menu_ev_cb(lv_event_t *e);
 
-void my_demo_create(lv_obj_t *parent)
+/**
+ * @brief global function
+ *
+ */
+
+void my_demo_create(lv_obj_t *parent, void (*add_inputdev_to_group)(lv_group_t *group))
 {
     lv_obj_t *tabview = lv_tabview_create(parent, LV_DIR_LEFT, 80);
     lv_obj_t *tab1    = lv_tabview_add_tab(tabview, "tab1");
     lv_tabview_add_tab(tabview, "tab2");
     lv_tabview_add_tab(tabview, "tab3");
-
-    my_serial_demo(tab1);
 
     lv_obj_t *bar = lv_tabview_get_tab_btns(tabview);
     lv_obj_set_style_radius(bar, 5, LV_STATE_DEFAULT);
@@ -37,27 +47,9 @@ void my_demo_create(lv_obj_t *parent)
     lv_obj_set_style_bg_color(bar, lv_color_hex(0xAC4C1F), LV_PART_ITEMS | LV_STATE_CHECKED);
     lv_obj_set_style_text_color(bar, lv_color_hex(0x9B371F), LV_PART_ITEMS | LV_STATE_CHECKED);
     lv_obj_set_style_bg_opa(bar, 100, LV_PART_ITEMS | LV_STATE_CHECKED);
-    // lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, 0);
-    lv_obj_add_event_cb(bar, bar_cb, LV_EVENT_COVER_CHECK, NULL);
 }
 
-static void set_angle(void *obj, int32_t v)
-{
-    lv_arc_set_value(obj, v);
-}
-
-static void animate_ready_cb(struct _lv_anim_t *anim)
-{
-    printf("animate over");
-    lv_obj_del(anim->var);
-}
-
-static void animate_fin_cb(void *var, int32_t)
-{
-    printf("animate stop");
-}
-
-void my_animate_demo(lv_point_t *p, lv_anim_ready_cb_t ready_cb)
+void my_animate_demo(lv_point_t *p)
 {
     lv_obj_t *arc = lv_arc_create(lv_scr_act());
     lv_arc_set_rotation(arc, 90);
@@ -69,16 +61,110 @@ void my_animate_demo(lv_point_t *p, lv_anim_ready_cb_t ready_cb)
     lv_obj_set_style_size(arc, 20, LV_PART_MAIN);
     lv_obj_set_pos(arc, p->x, p->y);
 
-    lv_anim_set_ready_cb(&a, ready_cb);
-    lv_anim_set_var(&a, arc);
-    lv_anim_set_exec_cb(&a, set_angle);
-    lv_anim_start(&a);
+    lv_anim_set_var(&g_anim_arc, arc);
+    lv_anim_start(&g_anim_arc);
 }
 
-void input_callback(lv_event_t *e)
+void mydemo_init(lv_obj_t *parent, void (*connect_to_keypad)(lv_group_t *group), void *interface)
 {
-    static uint8_t flag = 0;
-    lv_obj_t *t         = lv_event_get_target(e);
+    /** init animate */
+    lv_anim_init(&g_anim_arc);
+    lv_anim_set_time(&g_anim_arc, 500);
+    lv_anim_set_values(&g_anim_arc, 0, 100);
+    lv_anim_set_ready_cb(&g_anim_arc, anmi_arc_ready_cb);
+    lv_anim_set_exec_cb(&g_anim_arc, anmi_arc_set_angle);
+
+    /** init style */
+    lv_style_init(&g_terminal_style);
+    lv_style_set_border_color(&g_terminal_style, lv_color_hex(0xcdcfe));
+    lv_style_set_border_opa(&g_terminal_style, LV_OPA_COVER);
+    lv_style_set_border_width(&g_terminal_style, 2);
+
+    lv_style_set_shadow_width(&g_terminal_style, 5);
+    lv_style_set_shadow_spread(&g_terminal_style, 3);
+    lv_style_set_shadow_opa(&g_terminal_style, 100);
+    lv_style_set_shadow_color(&g_terminal_style, lv_color_hex(0xcdcfe));
+    lv_style_set_radius(&g_terminal_style, 10);
+
+    // lv_obj_t *test = lv_obj_create(parent);
+    // lv_obj_add_style(test, &g_terminal_style, LV_PART_MAIN);
+
+    /**
+     * @brief init group
+     * touch keypad to our textarea
+     */
+    g_terminal_group = lv_group_create();
+    connect_to_keypad(g_terminal_group);
+
+    /** Create an LVGL Text Area Widget for Terminal */
+    g_terminal_obj = lv_textarea_create(parent);
+    lv_obj_add_style(g_terminal_obj, &g_terminal_style, LV_PART_MAIN);
+    lv_obj_set_size(g_terminal_obj, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_flex_grow(g_terminal_obj, 1);
+    lv_group_add_obj(g_terminal_group, g_terminal_obj);
+    /**
+     * @brief Construct g_anim_arc new lv obj add event cb object
+     * user_data is used to transparent our interface, such as serial,ble,ssh
+     */
+    lv_obj_add_event_cb(g_terminal_obj, terminal_ev_cb, LV_EVENT_ALL | LV_EVENT_PREPROCESS, interface);
+
+    /**
+     * @brief menu obj
+     *
+     */
+    g_menu_obj = lv_tileview_create(parent);
+    lv_obj_set_size(g_menu_obj, LV_PCT(60), LV_PCT(60));
+    lv_obj_center(g_menu_obj);
+    lv_obj_set_style_bg_color(g_menu_obj, lv_color_hex(0xeeffcc), LV_PART_MAIN);
+    lv_obj_add_style(g_menu_obj, &g_terminal_style, LV_PART_MAIN);
+    lv_obj_add_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_remove_style(g_menu_obj, NULL, LV_PART_SCROLLBAR);
+    lv_group_add_obj(g_terminal_group, g_menu_obj);
+
+    /**
+     * @brief serial group
+     *
+     */
+    lv_obj_t *serial_tile  = lv_tileview_add_tile(g_menu_obj, 0, 0, LV_DIR_HOR);
+    lv_obj_t *serial_label = lv_label_create(serial_tile);
+    lv_label_set_text(serial_label, "SERIAL");
+    lv_obj_center(serial_label);
+
+    lv_obj_t *ble_tile  = lv_tileview_add_tile(g_menu_obj, 1, 0, LV_DIR_HOR);
+    lv_obj_t *ble_label = lv_label_create(ble_tile);
+    lv_label_set_text(ble_label, "BLE");
+    lv_obj_center(ble_label);
+
+    lv_obj_t *ssh_tile  = lv_tileview_add_tile(g_menu_obj, 2, 0, LV_DIR_HOR);
+    lv_obj_t *ssh_label = lv_label_create(ssh_tile);
+    lv_label_set_text(ssh_label, "SSH");
+    lv_obj_center(ssh_label);
+
+    lv_obj_add_event_cb(g_menu_obj, menu_ev_cb, LV_EVENT_ALL, interface);
+}
+
+/**
+ * @brief static function
+ *
+ */
+static void anmi_arc_set_angle(void *obj, int32_t v)
+{
+    lv_arc_set_value(obj, v);
+}
+
+static void anmi_arc_ready_cb(struct _lv_anim_t *anim)
+{
+    printf("animate over\n");
+    if (g_anim_ready_flag) {
+        lv_obj_del(anim->var);
+        g_anim_ready_flag = !g_anim_ready_flag;
+    }
+    lv_obj_clear_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_center(g_menu_obj);
+}
+
+static void terminal_ev_cb(lv_event_t *e)
+{
     if (e->code == LV_EVENT_KEY) {
         printf("LV_EVENT_KEY %s\n", (char *)lv_event_get_param(e));
         e->stop_processing = true;
@@ -87,47 +173,41 @@ void input_callback(lv_event_t *e)
         printf("LV_EVENT_INSERT %s\n", (char *)lv_event_get_param(e));
     }
     if (e->code == LV_EVENT_RELEASED) {
-        // lv_anim_del(a.var, NULL);
-        if (flag) {
-            lv_obj_del(a.var);
-            flag = !flag;
+        if (g_anim_ready_flag) {
+            lv_obj_del(g_anim_arc.var);
+            g_anim_ready_flag = !g_anim_ready_flag;
         }
     }
     if (e->code == LV_EVENT_LONG_PRESSED) {
         printf("LV_EVENT_LONG_PRESSED\n");
-        lv_indev_t *dev = (lv_indev_t *)lv_event_get_param(e);
-        my_animate_demo(&dev->proc.types.pointer.act_point, animate_ready_cb);
-        flag = !flag;
+        if (!g_anim_ready_flag) {
+            lv_indev_t *dev = (lv_indev_t *)lv_event_get_param(e);
+            my_animate_demo(&dev->proc.types.pointer.act_point);
+            g_anim_ready_flag = !g_anim_ready_flag;
+        }
     }
 }
 
-void my_serial_demo(lv_obj_t *parent)
+static void menu_ev_cb(lv_event_t *e)
 {
-    lv_group_t *g = lv_group_create();
-    static lv_style_t g_terminal_style;
-    lv_style_init(&g_terminal_style);
+    if (e->code == LV_EVENT_DEFOCUSED) {
+        lv_obj_add_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
+    }
+    if (e->code == LV_EVENT_FOCUSED) {
+        printf("LV_EVENT_FOCUSED\n");
+    }
+    if (e->code == LV_EVENT_PRESSING) {
+        lv_obj_t   *obj   = lv_event_get_target(e);
+        lv_indev_t *indev = lv_indev_get_act();
+        if (indev == NULL) return;
+        if (lv_indev_get_type(indev) != LV_INDEV_TYPE_POINTER) return;
 
-    /* Create an LVGL Container with Column Flex Direction */
-    lv_obj_t *g_col = lv_obj_create(parent);
+        lv_point_t vect;
+        lv_indev_get_vect(indev, &vect);
 
-    lv_obj_set_size(g_col, LV_PCT(100), LV_PCT(100));
-    lv_obj_set_flex_flow(g_col, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_all(g_col, 0, 0); /* No padding */
-
-    /* Create an LVGL Text Area Widget for Terminal */
-    lv_obj_t *g_input = lv_textarea_create(g_col);
-    // lv_obj_t *g_input = lv_label_create(g_col);
-    lv_obj_add_style(g_input, &g_terminal_style, 0);
-    lv_obj_set_size(g_input, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_flex_grow(g_input, 1);
-
-    /* Register the Callback Function for Input */
-    lv_obj_add_event_cb(g_input, input_callback, LV_EVENT_ALL | LV_EVENT_PREPROCESS, NULL);
-
-    lv_group_add_obj(g, g_input);
-    lv_indev_set_group(keyboard_indev, g);
-
-    lv_anim_init(&a);
-    lv_anim_set_time(&a, 1000);
-    lv_anim_set_values(&a, 0, 100);
+        int32_t x = lv_obj_get_x_aligned(obj) + vect.x;
+        int32_t y = lv_obj_get_y_aligned(obj) + vect.y;
+        lv_obj_set_pos(obj, x, y);
+    }
 }
+

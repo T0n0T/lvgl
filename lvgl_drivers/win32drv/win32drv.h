@@ -45,7 +45,11 @@
 /*********************
  *      DEFINES
  *********************/
+#define WINDOW_EX_STYLE \
+    WS_EX_CLIENTEDGE
 
+#define WINDOW_STYLE \
+    (WS_OVERLAPPEDWINDOW & ~(WS_SIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME))
 /**********************
  *      TYPEDEFS
  **********************/
@@ -55,7 +59,7 @@
  **********************/
 
 EXTERN_C bool lv_win32_quit_signal;
-
+EXTERN_C HWND g_window_handle;
 EXTERN_C lv_indev_t* lv_win32_pointer_device_object;
 EXTERN_C lv_indev_t* lv_win32_keypad_device_object;
 EXTERN_C lv_indev_t* lv_win32_encoder_device_object;

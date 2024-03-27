@@ -20,12 +20,6 @@
  *      DEFINES
  *********************/
 
-#define WINDOW_EX_STYLE \
-    WS_EX_CLIENTEDGE
-
-#define WINDOW_STYLE \
-    (WS_OVERLAPPEDWINDOW & ~(WS_SIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME))
-
 #ifndef WIN32DRV_MONITOR_ZOOM
 #define WIN32DRV_MONITOR_ZOOM 1
 #endif
@@ -180,7 +174,7 @@ EXTERN_C lv_indev_t* lv_win32_encoder_device_object = NULL;
  *  STATIC VARIABLES
  **********************/
 
-static HWND g_window_handle = NULL;
+HWND g_window_handle = NULL;
 
 static HDC g_buffer_dc_handle = NULL;
 static UINT32* g_pixel_buffer = NULL;

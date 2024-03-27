@@ -6,6 +6,13 @@
 #include "ui/ui.h"
 #include <stdio.h>
 
+extern lv_indev_t *keyboard_indev;
+
+void add_keypad(lv_group_t *group)
+{
+    lv_indev_set_group(keyboard_indev, group);
+}
+
 int main(int argc, char const *argv[])
 {
     lv_porting_init();
@@ -13,12 +20,10 @@ int main(int argc, char const *argv[])
 
     // ui_init();
     // my_demo_create(lv_scr_act());
-    my_serial_demo(lv_scr_act());
+    mydemo_init(lv_scr_act(), add_keypad, NULL);
     // my_animate_demo(NULL, NULL);
     // lv_example_ffmpeg_1();
     // lv_example_arc_1();
-    while (1) {
-        lv_timer_handler();
-        lv_porting_delay();
-    }
+
+    lv_porting_looper();
 }

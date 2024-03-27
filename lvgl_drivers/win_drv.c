@@ -11,7 +11,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 #if LV_COLOR_DEPTH < 16
 #error Windows driver only supports true RGB colors at this time
@@ -31,13 +31,13 @@
  *  STATIC PROTOTYPES
  **********************/
 static void do_register(void);
-static void win_drv_flush(lv_disp_t *drv, lv_area_t *area, const lv_color_t * color_p);
+static void win_drv_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t * color_p);
 static void win_drv_fill(int32_t x1, int32_t y1, int32_t x2, int32_t y2, lv_color_t color);
 static void win_drv_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_color_t * color_p);
-static void win_drv_read(lv_indev_t *drv, lv_indev_data_t * data);
-static void msg_handler(void *param);
+static void win_drv_read(lv_indev_drv_t *drv, lv_indev_data_t * data);
+static void msg_handler(lv_timer_t * t);
 
-static COLORREF lv_color_to_colorref(const lv_color_t color);
+static COLORREF lv_color_to_colorref(lv_color_t color);
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -120,8 +120,7 @@ HWND windrv_init(void)
     ShowWindow(hwnd, SW_SHOWDEFAULT);
     UpdateWindow(hwnd);
 
-
-    lv_task_create(msg_handler, 0, LV_TASK_PRIO_HIGHEST, NULL);
+    lv_timer_create(msg_handler, 10, NULL);
     lv_win_exit_flag = false;
     do_register();
 }
@@ -134,7 +133,7 @@ static void do_register(void)
 {
     static lv_disp_draw_buf_t disp_buf_1;
     static lv_color_t buf1_1[WINDOW_HOR_RES * 100];                      /*A buffer for 10 rows*/
-    lv_disp_draw_buf_init(&disp_draw_buf_1, buf1_1, NULL, WINDOW_HOR_RES * 100);   /*Initialize the display buffer*/
+    lv_disp_draw_buf_init(&disp_buf_1, buf1_1, NULL, WINDOW_HOR_RES * 100);   /*Initialize the display buffer*/
 
 
     /*-----------------------------------
@@ -158,16 +157,23 @@ static void do_register(void)
 
     /*Finally register the driver*/
     lv_windows_disp = lv_disp_drv_register(&disp_drv);
+
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = win_drv_read;
     lv_indev_drv_register(&indev_drv);
+
+    // static lv_indev_drv_t indev_drv_2;
+    // lv_indev_drv_init(&indev_drv_2);
+    // indev_drv_2.type    = LV_INDEV_TYPE_KEYPAD;
+    // indev_drv_2.read_cb = sdl_keyboard_read;
+    // keyboard_indev      = lv_indev_drv_register(&indev_drv_2);
 }
 
-static void msg_handler(void *param)
+static void msg_handler(lv_timer_t * t)
 {
-    (void)param;
+    (void)t;
 
     MSG msg;
     BOOL bRet;
@@ -187,7 +193,7 @@ static void msg_handler(void *param)
     }
 }
 
- static void win_drv_read(lv_indev_t *drv, lv_indev_data_t * data)
+ static void win_drv_read(lv_indev_drv_t *drv, lv_indev_data_t * data)
 {
     data->state = mouse_pressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
     data->point.x = mouse_x;
@@ -221,7 +227,7 @@ static void msg_handler(void *param)
  * @param y2 bottom coordinate
  * @param color_p an array of colors
  */
-static void win_drv_flush(lv_disp_t *drv, lv_area_t *area, const lv_color_t * color_p)
+static void win_drv_flush(lv_disp_drv_t *drv, const lv_area_t *area,  lv_color_t * color_p)
 {
     win_drv_map(area->x1, area->y1, area->x2, area->y2, color_p);
     lv_disp_flush_ready(drv);
@@ -290,7 +296,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
     }
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
-static COLORREF lv_color_to_colorref(const lv_color_t color)
+
+static COLORREF lv_color_to_colorref(lv_color_t color)
 {
     uint32_t raw_color = lv_color_to32(color);
     lv_color32_t tmp;
