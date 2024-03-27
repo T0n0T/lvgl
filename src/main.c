@@ -24,6 +24,7 @@ int main(int argc, char const *argv[])
     // my_animate_demo(NULL, NULL);
     // lv_example_ffmpeg_1();
     // lv_example_arc_1();
+    // lv_demo_keypad_encoder();
 
     lv_porting_looper();
 }

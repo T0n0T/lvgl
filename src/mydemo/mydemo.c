@@ -21,10 +21,14 @@ static lv_group_t *g_terminal_group;
 static lv_obj_t   *g_terminal_obj;
 static lv_obj_t   *g_menu_obj;
 
+static lv_obj_t *g_terminal_screen;
+static lv_obj_t *g_menu_screen;
+
 static void anmi_arc_set_angle(void *obj, int32_t v);
 static void anmi_arc_ready_cb(struct _lv_anim_t *anim);
 static void terminal_ev_cb(lv_event_t *e);
 static void menu_ev_cb(lv_event_t *e);
+static void menu_background_ev_cb(lv_event_t *e);
 
 /**
  * @brief global function
@@ -97,7 +101,9 @@ void mydemo_init(lv_obj_t *parent, void (*connect_to_keypad)(lv_group_t *group),
     connect_to_keypad(g_terminal_group);
 
     /** Create an LVGL Text Area Widget for Terminal */
-    g_terminal_obj = lv_textarea_create(parent);
+    g_terminal_screen = lv_scr_act();
+
+    g_terminal_obj = lv_textarea_create(g_terminal_screen);
     lv_obj_add_style(g_terminal_obj, &g_terminal_style, LV_PART_MAIN);
     lv_obj_set_size(g_terminal_obj, LV_PCT(100), LV_PCT(100));
     lv_obj_set_flex_grow(g_terminal_obj, 1);
@@ -112,14 +118,16 @@ void mydemo_init(lv_obj_t *parent, void (*connect_to_keypad)(lv_group_t *group),
      * @brief menu obj
      *
      */
-    g_menu_obj = lv_tileview_create(parent);
+    g_menu_screen = lv_obj_create(NULL);
+    // lv_obj_set_style_bg_opa(g_menu_screen, LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_add_event_cb(g_menu_screen, menu_background_ev_cb, LV_EVENT_FOCUSED, NULL);
+    g_menu_obj = lv_tileview_create(g_menu_screen);
     lv_obj_set_size(g_menu_obj, LV_PCT(60), LV_PCT(60));
     lv_obj_center(g_menu_obj);
     lv_obj_set_style_bg_color(g_menu_obj, lv_color_hex(0xeeffcc), LV_PART_MAIN);
     lv_obj_add_style(g_menu_obj, &g_terminal_style, LV_PART_MAIN);
     lv_obj_add_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
     lv_obj_remove_style(g_menu_obj, NULL, LV_PART_SCROLLBAR);
-    lv_group_add_obj(g_terminal_group, g_menu_obj);
 
     /**
      * @brief serial group
@@ -159,8 +167,11 @@ static void anmi_arc_ready_cb(struct _lv_anim_t *anim)
         lv_obj_del(anim->var);
         g_anim_ready_flag = !g_anim_ready_flag;
     }
-    lv_obj_clear_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
+
+    lv_scr_load_anim(g_menu_screen, LV_SCR_LOAD_ANIM_OVER_TOP, 500, 0, false);
     lv_obj_center(g_menu_obj);
+    // lv_obj_clear_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
+    // lv_group_focus_obj(g_menu_obj);
 }
 
 static void terminal_ev_cb(lv_event_t *e)
@@ -191,10 +202,14 @@ static void terminal_ev_cb(lv_event_t *e)
 static void menu_ev_cb(lv_event_t *e)
 {
     if (e->code == LV_EVENT_DEFOCUSED) {
-        lv_obj_add_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
+        printf("LV_EVENT_DEFOCUSED\n");
+        // lv_obj_add_flag(g_menu_obj, LV_OBJ_FLAG_HIDDEN);
     }
     if (e->code == LV_EVENT_FOCUSED) {
         printf("LV_EVENT_FOCUSED\n");
+    }
+    if (e->code == LV_EVENT_SCROLL) {
+        printf("LV_EVENT_SCROLL\n");
     }
     if (e->code == LV_EVENT_PRESSING) {
         lv_obj_t   *obj   = lv_event_get_target(e);
@@ -211,3 +226,8 @@ static void menu_ev_cb(lv_event_t *e)
     }
 }
 
+static void menu_background_ev_cb(lv_event_t *e)
+{
+    printf("Exit MENU\n");
+    lv_scr_load(g_terminal_screen);
+}
