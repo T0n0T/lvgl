@@ -14,9 +14,14 @@
 #include "lvgl.h"
 #include <stdio.h>
 
-void my_demo_create(lv_obj_t *parent, void (*add_inputdev_to_group)(lv_group_t* group));
+struct protocol_interface {
+    void (*init)(void*);
+	void (*send_data)(uint8_t *data, uint16_t len);
+};
+
 void mydemo_init(lv_obj_t *parent, void (*connect_to_keypad)(lv_group_t *group), void *interface);
-void my_animate_demo(lv_point_t *p);
+void mydemo_init1(lv_obj_t *parent, void (*connect_to_keypad)(lv_group_t *group), void *interface);
+void mydemo_init2(lv_obj_t *parent, void (*add_inputdev_to_group)(lv_group_t* group), void *interface);
 
 #endif // !__MYDEMO_H__
 

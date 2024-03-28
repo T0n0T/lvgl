@@ -20,11 +20,11 @@ int main(int argc, char const *argv[])
 
     // ui_init();
     // my_demo_create(lv_scr_act());
-    mydemo_init(lv_scr_act(), add_keypad, NULL);
+    mydemo_init1(lv_scr_act(), add_keypad, NULL);
     // my_animate_demo(NULL, NULL);
     // lv_example_ffmpeg_1();
     // lv_example_arc_1();
-    // lv_demo_keypad_encoder();
-
+    // lv_demo_music();
+    
     lv_porting_looper();
 }
